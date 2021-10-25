@@ -8,9 +8,9 @@
                 </div>
                 <div class="card-body" id="page">
                     <div class="form-group row">
-                        <angular-slickgrid gridId="productGrid" [columnDefinitions]="columnDefinitions"
-                            [gridOptions]="gridOptions" [dataset]="products">
-                        </angular-slickgrid>
+                        <slickgrid style="width: 100%" [columnDefinitions]="columnDefinitions"
+                            [dataset]="productList.products" [pageCount]="productList.pageCount">
+                        </slickgrid>
                     </div>
                 </div>
             </div>
