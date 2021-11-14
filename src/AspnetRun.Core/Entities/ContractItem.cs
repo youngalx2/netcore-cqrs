@@ -2,7 +2,7 @@
 
 namespace AspnetRun.Core.Entities
 {
-    public class OrderItem : Entity
+    public class ContractItem : Entity
     {
         public int Quantity { get; set; }
         public decimal UnitPrice { get; set; }
