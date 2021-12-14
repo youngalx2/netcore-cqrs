@@ -1,9 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
-import { AngularGridInstance, Column, GridOption, GraphqlService, GraphqlResult, Filters, Formatter, Formatters, OnEventArgs, FieldType } from 'angular-slickgrid';
+import { AngularGridInstance, Column, GridOption, GraphqlService, GraphqlResult, Filters, Formatters, OnEventArgs, FieldType } from 'angular-slickgrid';
 
 import { ProductDataService } from 'src/app/core/services/product-data.service';
+import { PageService } from 'src/app/core/services/page.service';
 
 
 const GRAPHQL_QUERY_DATASET_NAME = 'products';
@@ -19,7 +22,7 @@ export class ProductListComponent implements OnInit {
   gridOptions: GridOption;
   dataset = [];
 
-  constructor(private dataService: ProductDataService, private router: Router) {
+  constructor(private dataService: ProductDataService, private router: Router, private pageService: PageService) {
   }
 
   ngOnInit(): void {
@@ -48,9 +51,7 @@ export class ProductListComponent implements OnInit {
         service: new GraphqlService(),
         options: {
           columnDefinitions: this.columnDefinitions,
-          datasetName: GRAPHQL_QUERY_DATASET_NAME,
-          isWithCursor: false,
-          keepArgumentFieldDoubleQuotes: true
+          datasetName: GRAPHQL_QUERY_DATASET_NAME
         },
         process: (query) => this.getProducts(),
       }
@@ -61,35 +62,25 @@ export class ProductListComponent implements OnInit {
     this.angularGrid = angularGrid;
   }
 
-  getProducts(): Promise<GraphqlResult> {
+  getProducts(): Observable<GraphqlResult> {
+    var args = this.pageService.getPageArgs(this.angularGrid);
 
-    if (this.angularGrid) {
-      var a = this.angularGrid.backendService.getCurrentFilters();
-      var b = this.angularGrid.backendService.getCurrentSorters();
-      var c = this.angularGrid.backendService.getCurrentPagination();
-      var d = 0;
-    }
-
-    return new Promise((resolve) => {
-      this.dataService.getProductsByName("")
-        .toPromise()
-        .then(
-          products => {
-            var result = {
-              data: {
-                [GRAPHQL_QUERY_DATASET_NAME]: {
-                  nodes: products,
-                  pageInfo: {
-                    hasNextPage: true
-                  },
-                  totalCount: 100
-                }
+    return this.dataService.searchProducts(args)
+      .pipe(map(
+        page => {
+          var result: GraphqlResult = {
+            data: {
+              [GRAPHQL_QUERY_DATASET_NAME]: {
+                nodes: page.items,
+                pageInfo: {
+                  hasNextPage: page.hasNextPage
+                },
+                totalCount: page.totalCount
               }
-            };
+            }
+          };
 
-            resolve(result);
-          }
-        );
-    });
+          return result;
+        }));
   }
 }

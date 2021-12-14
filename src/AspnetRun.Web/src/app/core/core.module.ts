@@ -18,8 +18,15 @@ import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { TabsModule } from 'ngx-bootstrap/tabs';
 import { RouterModule } from '@angular/router';
 import { CustomerDataService } from './services/customer-data.services';
+import { PageService } from './services/page.service';
+import { ToastrModule } from 'ngx-toastr';
+import { NgWizardModule, NgWizardConfig, THEME } from 'ng-wizard';
 
 const APP_CONTAINERS = [LayoutComponent];
+
+const ngWizardConfig: NgWizardConfig = {
+  theme: THEME.default
+};
 
 @NgModule({
   declarations: [
@@ -30,6 +37,7 @@ const APP_CONTAINERS = [LayoutComponent];
     NgxUiLoaderModule,
     //NgxUiLoaderRouterModule, // import this module for showing loader automatically when navigating between app routes
     NgxUiLoaderHttpModule.forRoot({ showForeground: false }),
+    ToastrModule.forRoot({ positionClass: 'toast-top-full-width', closeButton: true }),
     AppAsideModule,
     AppBreadcrumbModule.forRoot(),
     AppFooterModule,
@@ -38,11 +46,13 @@ const APP_CONTAINERS = [LayoutComponent];
     PerfectScrollbarModule,
     BsDropdownModule.forRoot(),
     TabsModule.forRoot(),
+    NgWizardModule.forRoot(ngWizardConfig),
   ],
   exports: [
     RouterModule,
     HttpClientModule,
     NgxUiLoaderModule,
+    NgWizardModule,
     LayoutComponent,
   ],
   providers: [
@@ -52,6 +62,7 @@ const APP_CONTAINERS = [LayoutComponent];
     AuthService,
     AuthGuardService,
     ValidationService,
+    PageService,
     SpinnerService,
     {
       provide: HTTP_INTERCEPTORS,
